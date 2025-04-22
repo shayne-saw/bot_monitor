@@ -4,7 +4,9 @@
     "postgresql@latest",
     "elixir@latest",
     "erlang@latest",
-    "nodejs@latest"
+    "nodejs@latest",
+    "zig@latest",
+    "xz@latest"
   ],
   "shell": {
     "init_hook": [

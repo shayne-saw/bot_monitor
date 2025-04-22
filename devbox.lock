@@ -319,6 +319,186 @@
           "store_path": "/nix/store/snfxmriwav4i0k1fxp78xk5w12hbv4q9-postgresql-17.4"
         }
       }
+    },
+    "xz@latest": {
+      "last_modified": "2025-04-12T15:53:49Z",
+      "resolved": "github:NixOS/nixpkgs/52d0eded529af34e91df6b2a2bc32eb636637cd2#xz",
+      "source": "devbox-search",
+      "version": "5.6.4",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "bin",
+              "path": "/nix/store/l083ymlnrn8iqyf8l204kpp24cz6sshm-xz-5.6.4-bin",
+              "default": true
+            },
+            {
+              "name": "man",
+              "path": "/nix/store/vn08hhrmcs7x2dk4x2sp8sv3w4f6f6a5-xz-5.6.4-man",
+              "default": true
+            },
+            {
+              "name": "out",
+              "path": "/nix/store/gs163z7sl2j6divjv8gkb1l2ih7dpmms-xz-5.6.4"
+            },
+            {
+              "name": "dev",
+              "path": "/nix/store/2x8pxgvssdzxhkp3r15qghvwqn6y4zif-xz-5.6.4-dev"
+            },
+            {
+              "name": "doc",
+              "path": "/nix/store/4vwlags799lg2k58za6ax4xcp5zr6903-xz-5.6.4-doc"
+            }
+          ],
+          "store_path": "/nix/store/l083ymlnrn8iqyf8l204kpp24cz6sshm-xz-5.6.4-bin"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "bin",
+              "path": "/nix/store/lsyiglyh2h6f90vqrr7gmkn6x26i8r4z-xz-5.6.4-bin",
+              "default": true
+            },
+            {
+              "name": "man",
+              "path": "/nix/store/64izs1xazi2d773gnl3cwhh44scd3ldk-xz-5.6.4-man",
+              "default": true
+            },
+            {
+              "name": "out",
+              "path": "/nix/store/56yki9mmydkakh2fbwbyvxiz09hlrr54-xz-5.6.4"
+            },
+            {
+              "name": "dev",
+              "path": "/nix/store/jnpdgl598hfm1ckxh97r1r219wdbzr8f-xz-5.6.4-dev"
+            },
+            {
+              "name": "doc",
+              "path": "/nix/store/jfd44hyqarwzq71rdrjddi7kpyf4b3fj-xz-5.6.4-doc"
+            }
+          ],
+          "store_path": "/nix/store/lsyiglyh2h6f90vqrr7gmkn6x26i8r4z-xz-5.6.4-bin"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "bin",
+              "path": "/nix/store/h1vp04b1mq0b9v6974q3z3dihc1phipp-xz-5.6.4-bin",
+              "default": true
+            },
+            {
+              "name": "man",
+              "path": "/nix/store/8k02ck2jjbm81id8vyzxnqv6493kh42v-xz-5.6.4-man",
+              "default": true
+            },
+            {
+              "name": "out",
+              "path": "/nix/store/l4m1a7y4wc30ksxdgm4c5mmbydi66rpj-xz-5.6.4"
+            },
+            {
+              "name": "dev",
+              "path": "/nix/store/qjb723gv41mf3sa2bfkb3qg70i9j0ny2-xz-5.6.4-dev"
+            },
+            {
+              "name": "doc",
+              "path": "/nix/store/wv4f7485dr4w385hc2m794cm6z5rrn83-xz-5.6.4-doc"
+            }
+          ],
+          "store_path": "/nix/store/h1vp04b1mq0b9v6974q3z3dihc1phipp-xz-5.6.4-bin"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "bin",
+              "path": "/nix/store/f246qzchy7zy00z1f42dqz9jiwcf5n7f-xz-5.6.4-bin",
+              "default": true
+            },
+            {
+              "name": "man",
+              "path": "/nix/store/z2hgkq74883w6ryf03piicplldq996i5-xz-5.6.4-man",
+              "default": true
+            },
+            {
+              "name": "out",
+              "path": "/nix/store/qkmlj9xwg316pxsprhq1jldjc3xqvim1-xz-5.6.4"
+            },
+            {
+              "name": "dev",
+              "path": "/nix/store/7ib5nc55hr3f3j3lpyhismw4cixrka2h-xz-5.6.4-dev"
+            },
+            {
+              "name": "doc",
+              "path": "/nix/store/hvqqxn88w31znyf6b4zjz9ia5j1rjhpz-xz-5.6.4-doc"
+            }
+          ],
+          "store_path": "/nix/store/f246qzchy7zy00z1f42dqz9jiwcf5n7f-xz-5.6.4-bin"
+        }
+      }
+    },
+    "zig@latest": {
+      "last_modified": "2025-03-23T05:31:05Z",
+      "resolved": "github:NixOS/nixpkgs/dd613136ee91f67e5dba3f3f41ac99ae89c5406b#zig",
+      "source": "devbox-search",
+      "version": "0.14.0",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/64ymrclh07dk1yvp4h2mzy6w55nsqwwv-zig-0.14.0",
+              "default": true
+            },
+            {
+              "name": "doc",
+              "path": "/nix/store/9svdbk2w8n9w5vk9ddbwfclwva07z638-zig-0.14.0-doc"
+            }
+          ],
+          "store_path": "/nix/store/64ymrclh07dk1yvp4h2mzy6w55nsqwwv-zig-0.14.0"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/j01cnwirkn9dc3k1srhsdrh1hjqkymcd-zig-0.14.0",
+              "default": true
+            },
+            {
+              "name": "doc",
+              "path": "/nix/store/bdxhm7svza9lbsn6k59bxz2dzyjjyi3k-zig-0.14.0-doc"
+            }
+          ],
+          "store_path": "/nix/store/j01cnwirkn9dc3k1srhsdrh1hjqkymcd-zig-0.14.0"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/iylzk63nbign77ad8whcjl5cfwv6xzmj-zig-0.14.0",
+              "default": true
+            },
+            {
+              "name": "doc",
+              "path": "/nix/store/85b9lfx6hp2xa8a23k79wghl0cns6vpy-zig-0.14.0-doc"
+            }
+          ],
+          "store_path": "/nix/store/iylzk63nbign77ad8whcjl5cfwv6xzmj-zig-0.14.0"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/dzdlr4lms4wgjvi02r1pcqh54iiq9pn5-zig-0.14.0",
+              "default": true
+            },
+            {
+              "name": "doc",
+              "path": "/nix/store/ic33i3ddk1ah4rgqlr4fcx6did1fm8wv-zig-0.14.0-doc"
+            }
+          ],
+          "store_path": "/nix/store/dzdlr4lms4wgjvi02r1pcqh54iiq9pn5-zig-0.14.0"
+        }
+      }
     }
   }
 }

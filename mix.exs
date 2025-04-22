@@ -7,7 +7,8 @@ defmodule BotMonitor.MixProject do
       version: "0.1.0",
       elixir: "~> 1.17",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      releases: releases()
     ]
   end
 
@@ -22,8 +23,24 @@ defmodule BotMonitor.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:burrito, "~> 1.0"},
+      {:jason, "~> 1.4"},
+      {:slipstream, "~> 1.2"},
       {:timex, "~> 3.7"},
       {:websocket_client, "~> 1.5"}
+    ]
+  end
+
+  defp releases do
+    [
+      bot_monitor: [
+        steps: [:assemble, &Burrito.wrap/1],
+        burrito: [
+          targets: [
+            windows: [os: :windows, cpu: :x86_64]
+          ]
+        ]
+      ]
     ]
   end
 end

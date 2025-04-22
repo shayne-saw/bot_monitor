@@ -23,3 +23,4 @@ bot_monitor-*.tar
 /tmp/
 
 .local.env
+burrito_out/
