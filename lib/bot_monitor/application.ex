@@ -10,7 +10,7 @@ defmodule BotMonitor.Application do
   def start(_type, _args) do
     {config, cookie} =
       Storage.open(fn ->
-        {get_config(), BotMonitor.Storage.get_cookie()}
+        {get_config(), Storage.get_cookie()}
       end)
 
     children = [
@@ -32,26 +32,38 @@ defmodule BotMonitor.Application do
       log_endpoint: System.get_env("LOG_ENDPOINT")
     }
 
-    dets_config =
-      if env_config |> Map.values() |> Enum.any?(&is_nil/1),
-        do: BotMonitor.Storage.get_config(),
-        else: %{}
+    if env_config |> Map.values() |> Enum.all?(&is_binary/1),
+      do: env_config,
+      else: get_dets_config()
+  end
 
-    gets_config =
-      if is_nil(dets_config),
-        do:
-          %{
-            username: IO.gets("Username: ") |> String.trim(),
-            log_directory: IO.gets("Log Directory: ") |> String.trim(),
-            log_endpoint: IO.gets("Log Endpoint: ") |> String.trim()
-          }
-          |> tap(&Storage.set_config/1),
-        else: %{}
+  def get_dets_config() do
+    case Storage.get_config() do
+      nil ->
+        prompt_user_for_config()
+        |> tap(&Storage.set_config/1)
 
-    cond do
-      dets_config && Enum.any?(dets_config) -> dets_config
-      Enum.any?(gets_config) -> gets_config
-      true -> env_config
+      config ->
+        config
+    end
+  end
+
+  def prompt_user_for_config() do
+    %{
+      username: prompt_for_value("Username"),
+      log_directory: prompt_for_value("Log Directory"),
+      log_endpoint: prompt_for_value("Log Endpoint")
+    }
+  end
+
+  defp prompt_for_value(field) do
+    case IO.gets("#{field}: ") |> String.trim() do
+      "" ->
+        IO.puts("#{field} cannot be empty. Please try again.")
+        prompt_for_value(field)
+
+      value ->
+        value
     end
   end
 end
