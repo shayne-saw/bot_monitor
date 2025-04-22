@@ -2,20 +2,19 @@ defmodule BotMonitor.DirWatcher do
   alias BotMonitor.LogParser
   use GenServer
 
-  @log_dir_env_name "LOG_DIRECTORY"
   @log_file_pattern ~r/^eqlog_(\w+)_P1999Green\.txt$/
   @poll_interval 1_000
 
   # API
 
-  def start_link([]) do
-    GenServer.start_link(__MODULE__, [], name: __MODULE__)
+  def start_link([config]) do
+    GenServer.start_link(__MODULE__, [config], name: __MODULE__)
   end
 
   # Callbacks
 
-  def init([]) do
-    directory = System.get_env(@log_dir_env_name)
+  def init([config]) do
+    directory = config.log_directory
     IO.inspect("Starting with directory: #{directory}")
 
     [{character, _, path} | _] = list_files_info(directory)

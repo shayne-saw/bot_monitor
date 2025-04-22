@@ -49,14 +49,13 @@ defmodule BotMonitor.LogParser do
     Stream.resource(
       fn -> file end,
       fn file ->
-        case IO.read(file, :line) do
-          line when is_binary(line) ->
-            [_line, timestamp, message] = Regex.run(@log_entry_pattern, line)
-            {:ok, datetime} = Timex.parse(timestamp, @log_timestamp_format)
-            {[{datetime, message}], file}
-
-          :eof ->
-            {:halt, file}
+        with line when is_binary(line) <- IO.read(file, :line),
+             [_line, timestamp, message] <- Regex.run(@log_entry_pattern, line) do
+          {:ok, datetime} = Timex.parse(timestamp, @log_timestamp_format)
+          {[{datetime, message}], file}
+        else
+          :eof -> {:halt, file}
+          nil -> {[], file}
         end
       end,
       &Function.identity/1
