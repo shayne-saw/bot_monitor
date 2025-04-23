@@ -16,7 +16,7 @@ defmodule BotMonitor.Application do
     children = [
       # Starts a worker by calling: BotMonitor.Worker.start_link(arg)
       {Registry, keys: :unique, name: BotMonitor.LogParser},
-      {BotMonitor.DirWatcher, [config]}
+      {BotMonitor.SocketClient, [config, cookie]}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

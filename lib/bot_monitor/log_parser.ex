@@ -20,7 +20,7 @@ defmodule BotMonitor.LogParser do
 
   # Callbacks
 
-  def init([character, file_path]) do
+  def init([_character, file_path]) do
     file = File.open!(file_path, [:read])
     set_initial_position(file)
 

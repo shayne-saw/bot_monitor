@@ -123,7 +123,7 @@ defmodule BotMonitor.Storage do
       iex> BotMonitor.Storage.dets_file_path("data")
       '/home/user/.local/share/bot_monitor/data'
   """
-  defp dets_file_path(filename) do
+  def dets_file_path(filename) do
     base_dir =
       case(:os.type()) do
         {:win32, _} -> System.fetch_env!("LOCALAPPDATA")

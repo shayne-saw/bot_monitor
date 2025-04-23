@@ -1,0 +1,158 @@
+defmodule BotMonitor.SocketClient do
+  @moduledoc """
+  A WebSocket client for interacting with the BotBoard server.
+
+  This module uses the `Slipstream` library to manage WebSocket connections,
+  handle pairing, and send log entries to the server. It also integrates with
+  the `DirWatcher` module to monitor directories for changes.
+
+  ## Features
+    - Establishes a WebSocket connection to the server.
+    - Handles user pairing when required.
+    - Sends log entries to the server.
+    - Manages disconnections gracefully.
+    - Once successfully paired, starts the DirWatcher process to monitor
+      directories and subsequently tail log files.
+  """
+
+  alias BotMonitor.DirWatcher
+  use Slipstream
+
+  # API
+
+  @doc """
+  Starts the `SocketClient` process.
+
+  ## Parameters
+    - `args`: A list containing the configuration and cookie.
+
+  ## Returns
+    - `{:ok, pid}` on success.
+
+  ## Examples
+
+      iex> BotMonitor.SocketClient.start_link([config, cookie])
+      {:ok, #PID<0.123.0>}
+  """
+  @spec start_link([...]) :: :ignore | {:error, any()} | {:ok, pid()}
+  def start_link([config, cookie]) do
+    Slipstream.start_link(__MODULE__, [config, cookie], name: __MODULE__)
+  end
+
+  @doc """
+  Sends a pairing request to the server with the given code.
+
+  ## Parameters
+    - `code`: The pairing code provided by the user.
+
+  ## Returns
+    - `true` if the pairing is successful.
+    - `false` if the pairing fails.
+
+  ## Examples
+
+      iex> BotMonitor.SocketClient.pair("123456")
+      true
+  """
+  @spec pair(String.t()) :: boolean()
+  def pair(code) do
+    GenServer.call(__MODULE__, {:pair, code})
+  end
+
+  @doc """
+  Sends a log entry to the server.
+
+  ## Parameters
+    - `entry`: A map containing the log entry data.
+
+  ## Returns
+    - `true` if the entry is accepted.
+    - `false` if the entry is ignored.
+
+  ## Examples
+
+      iex> BotMonitor.SocketClient.send_entry(%{message: "Log message"})
+      true
+  """
+  @spec send_entry(map()) :: boolean()
+  def send_entry(entry) when is_map(entry) do
+    GenServer.call(__MODULE__, {:send_entry, entry})
+  end
+
+  # Callbacks
+
+  @doc false
+  @impl Slipstream
+  def init([config, cookie]) do
+    payload = %{
+      "username" => config.username,
+      "cookie" => cookie,
+      "manual_pairing" => Code.ensure_loaded(IEx) && IEx.started?()
+    }
+
+    # Synchronously connect to the websocket server and join the "logs" channel.
+    socket =
+      connect!(uri: config.log_endpoint)
+      |> await_connect!()
+      |> join("logs", payload)
+      |> await_join!("logs")
+
+    # The server will check the provided cookie and indicate if the pairing
+    # process is required and convey that via an initial message we wait for
+    # here.
+    {_, _, user_status} =
+      await_message!("logs", "user_status", _)
+
+    if user_status["pairing_required"] do
+      interactive_pairing(socket)
+    end
+
+    # Finally, start the DirWatcher process to monitor directories.
+    {:ok, _pid} = DirWatcher.start_link([config])
+    {:ok, socket}
+  end
+
+  @doc false
+  @impl Slipstream
+  def handle_call({:pair, code}, _from, socket) do
+    {:reply, check_code(socket, code), socket}
+  end
+
+  @doc false
+  @impl Slipstream
+  def handle_call({:send_entry, entry}, _from, socket) do
+    {:ok, result} =
+      socket
+      |> push!("logs", "entry", entry)
+      |> await_reply!()
+
+    {:reply, result, socket}
+  end
+
+  @doc false
+  @impl Slipstream
+  def handle_disconnect(reason, socket) do
+    {:stop, reason, socket}
+  end
+
+  # Helpers
+
+  @doc false
+  defp interactive_pairing(socket) do
+    code = IO.gets("Pairing code: ") |> String.trim()
+
+    if check_code(socket, code),
+      do: {:ok, socket},
+      else: interactive_pairing(socket)
+  end
+
+  @doc false
+  defp check_code(socket, code) do
+    case socket
+         |> push!("logs", "pair", %{code: code})
+         |> await_reply! do
+      {:ok, result} -> result
+      {:error, reason} -> raise "Error pairing: #{reason}"
+    end
+  end
+end
