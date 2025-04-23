@@ -15,6 +15,7 @@ defmodule BotMonitor.SocketClient do
       directories and subsequently tail log files.
   """
 
+  alias BotMonitor.Storage
   alias BotMonitor.DirWatcher
   use Slipstream
 
@@ -34,9 +35,8 @@ defmodule BotMonitor.SocketClient do
       iex> BotMonitor.SocketClient.start_link([config, cookie])
       {:ok, #PID<0.123.0>}
   """
-  @spec start_link([...]) :: :ignore | {:error, any()} | {:ok, pid()}
-  def start_link([config, cookie]) do
-    Slipstream.start_link(__MODULE__, [config, cookie], name: __MODULE__)
+  def start_link([config, cookie, patterns]) do
+    Slipstream.start_link(__MODULE__, [config, cookie, patterns], name: __MODULE__)
   end
 
   @doc """
@@ -83,11 +83,16 @@ defmodule BotMonitor.SocketClient do
 
   @doc false
   @impl Slipstream
-  def init([config, cookie]) do
+  def init([config, cookie, patterns]) do
     payload = %{
       "username" => config.username,
       "cookie" => cookie,
-      "manual_pairing" => Code.ensure_loaded(IEx) && IEx.started?()
+      "manual_pairing" => Code.ensure_loaded(IEx) && IEx.started?(),
+      "pattern_hash" =>
+        patterns
+        |> :erlang.term_to_binary()
+        |> then(&:crypto.hash(:md5, &1))
+        |> Base.encode64()
     }
 
     # Synchronously connect to the websocket server and join the "logs" channel.
@@ -96,6 +101,27 @@ defmodule BotMonitor.SocketClient do
       |> await_connect!()
       |> join("logs", payload)
       |> await_join!("logs")
+
+    # We will get a message from the server that indicates if we have the latest
+    # patterns. If not, it will send them to us and we should save them.
+    latest_patterns =
+      case await_message!("logs", "pattern_status", _) do
+        {_, _, %{"pattern_status" => true}} ->
+          patterns
+
+        {_, _, %{"pattern_status" => encoded_patterns}} ->
+          patterns =
+            encoded_patterns
+            |> Enum.map(fn pattern ->
+              Map.put(pattern, "regex", Regex.compile!(pattern["regex"]))
+            end)
+
+          Storage.open(fn ->
+            Storage.set_patterns(patterns)
+          end)
+
+          patterns
+      end
 
     # The server will check the provided cookie and indicate if the pairing
     # process is required and convey that via an initial message we wait for
@@ -108,7 +134,7 @@ defmodule BotMonitor.SocketClient do
     end
 
     # Finally, start the DirWatcher process to monitor directories.
-    {:ok, _pid} = DirWatcher.start_link([config])
+    {:ok, _pid} = DirWatcher.start_link([config, latest_patterns])
     {:ok, socket}
   end
 

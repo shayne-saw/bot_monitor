@@ -8,8 +8,8 @@ defmodule BotMonitor.LogParser do
 
   # API
 
-  def start_link(character, file_path) do
-    GenServer.start_link(__MODULE__, [character, file_path],
+  def start_link(character, file_path, patterns) do
+    GenServer.start_link(__MODULE__, [character, file_path, patterns],
       name: {:via, Registry, {__MODULE__, character}}
     )
   end
@@ -20,7 +20,7 @@ defmodule BotMonitor.LogParser do
 
   # Callbacks
 
-  def init([_character, file_path]) do
+  def init([_character, file_path, _patterns]) do
     file = File.open!(file_path, [:read])
     set_initial_position(file)
 

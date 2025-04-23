@@ -7,29 +7,29 @@ defmodule BotMonitor.DirWatcher do
 
   # API
 
-  def start_link([config]) do
-    GenServer.start_link(__MODULE__, [config], name: __MODULE__)
+  def start_link([config, patterns]) do
+    GenServer.start_link(__MODULE__, [config, patterns], name: __MODULE__)
   end
 
   # Callbacks
 
-  def init([config]) do
+  def init([config, patterns]) do
     directory = config.log_directory
     IO.inspect("Starting with directory: #{directory}")
 
     [{character, _, path} | _] = list_files_info(directory)
-    LogParser.start_link(character, path)
+    LogParser.start_link(character, path, patterns)
 
     :timer.send_interval(@poll_interval, self(), :poll)
-    {:ok, %{directory: directory, active_character: character}}
+    {:ok, %{directory: directory, active_character: character, patterns: patterns}}
   end
 
-  def handle_info(:poll, %{directory: directory} = state) do
-    [{character, _, path} | _] = list_files_info(directory)
+  def handle_info(:poll, state) do
+    [{character, _, path} | _] = list_files_info(state.directory)
 
     if character != state.active_character do
       LogParser.stop(character)
-      LogParser.start_link(character, path)
+      LogParser.start_link(character, path, state.patterns)
     end
 
     {:noreply, %{state | active_character: character}}

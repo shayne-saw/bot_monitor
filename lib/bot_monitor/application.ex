@@ -8,15 +8,15 @@ defmodule BotMonitor.Application do
 
   @impl true
   def start(_type, _args) do
-    {config, cookie} =
+    {config, cookie, patterns} =
       Storage.open(fn ->
-        {get_config(), Storage.get_cookie()}
+        {get_config(), Storage.get_cookie(), Storage.get_patterns()}
       end)
 
     children = [
       # Starts a worker by calling: BotMonitor.Worker.start_link(arg)
       {Registry, keys: :unique, name: BotMonitor.LogParser},
-      {BotMonitor.SocketClient, [config, cookie]}
+      {BotMonitor.SocketClient, [config, cookie, patterns]}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

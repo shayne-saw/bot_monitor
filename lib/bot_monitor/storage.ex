@@ -47,6 +47,17 @@ defmodule BotMonitor.Storage do
     end
   end
 
+  def get_patterns do
+    case :dets.lookup(@table, :patterns) do
+      [] -> []
+      [{:patterns, patterns}] -> patterns
+    end
+  end
+
+  def set_patterns(patterns) do
+    :dets.insert(@table, {:patterns, patterns})
+  end
+
   @doc """
   Retrieves the cookie from DETS storage.
 
