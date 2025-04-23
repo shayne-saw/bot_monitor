@@ -15,6 +15,7 @@ defmodule BotMonitor.SocketClient do
       directories and subsequently tail log files.
   """
 
+  require Logger
   alias BotMonitor.Storage
   alias BotMonitor.DirWatcher
   use Slipstream
@@ -84,6 +85,49 @@ defmodule BotMonitor.SocketClient do
   @doc false
   @impl Slipstream
   def init([config, cookie, patterns]) do
+    connect_loop(config, cookie, patterns)
+  end
+
+  @doc false
+  @impl Slipstream
+  def handle_call({:pair, code}, _from, socket) do
+    {:reply, check_code(socket, code), socket}
+  end
+
+  @doc false
+  @impl Slipstream
+  def handle_call({:send_entry, entry}, _from, socket) do
+    {:ok, result} =
+      socket
+      |> push!("logs", "entry", entry)
+      |> await_reply!()
+
+    {:reply, result, socket}
+  end
+
+  @doc false
+  @impl Slipstream
+  def handle_disconnect(reason, socket) do
+    IO.inspect(reason, label: "Disconnected from server")
+    {:stop, reason, socket}
+  end
+
+  # Helpers
+
+  def connect_loop(config, cookie, patterns) do
+    case try_connect(config, cookie, patterns) do
+      {:ok, socket} ->
+        {:ok, socket}
+
+      {:error, reason} ->
+        Logger.error("Connection error: #{inspect(reason)}")
+        :timer.sleep(5000)
+        connect_loop(config, cookie, patterns)
+    end
+  end
+
+  @doc false
+  def try_connect(config, cookie, patterns) do
     payload = %{
       "username" => config.username,
       "cookie" => cookie,
@@ -136,32 +180,9 @@ defmodule BotMonitor.SocketClient do
     # Finally, start the DirWatcher process to monitor directories.
     {:ok, _pid} = DirWatcher.start_link([config, latest_patterns])
     {:ok, socket}
+  rescue
+    error -> {:error, error}
   end
-
-  @doc false
-  @impl Slipstream
-  def handle_call({:pair, code}, _from, socket) do
-    {:reply, check_code(socket, code), socket}
-  end
-
-  @doc false
-  @impl Slipstream
-  def handle_call({:send_entry, entry}, _from, socket) do
-    {:ok, result} =
-      socket
-      |> push!("logs", "entry", entry)
-      |> await_reply!()
-
-    {:reply, result, socket}
-  end
-
-  @doc false
-  @impl Slipstream
-  def handle_disconnect(reason, socket) do
-    {:stop, reason, socket}
-  end
-
-  # Helpers
 
   @doc false
   defp interactive_pairing(socket) do
