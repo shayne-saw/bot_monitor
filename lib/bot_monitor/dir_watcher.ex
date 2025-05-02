@@ -47,9 +47,12 @@ defmodule BotMonitor.DirWatcher do
       [_, character] = Regex.run(@log_file_pattern, file)
       path = Path.join(directory, file)
       stats = File.stat!(path)
-      modified_at = NaiveDateTime.from_erl!(stats.mtime)
+      modified_at = stats.mtime |> NaiveDateTime.from_erl!()
       {character, modified_at, path}
     end)
-    |> Enum.sort_by(fn {_, modified_at, _} -> modified_at end, :desc)
+    |> Enum.sort_by(
+      fn {_, modified_at, _} -> modified_at end,
+      fn a, b -> NaiveDateTime.compare(a, b) == :gt end
+    )
   end
 end
