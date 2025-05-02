@@ -77,7 +77,7 @@ defmodule BotMonitor.SocketClient do
   """
   @spec send_entry(map()) :: boolean()
   def send_entry(entry) when is_map(entry) do
-    GenServer.call(__MODULE__, {:send_entry, entry})
+    GenServer.cast(__MODULE__, {:send_entry, entry})
   end
 
   # Callbacks
@@ -96,13 +96,15 @@ defmodule BotMonitor.SocketClient do
 
   @doc false
   @impl Slipstream
-  def handle_call({:send_entry, entry}, _from, socket) do
-    {:ok, result} =
+  def handle_cast({:send_entry, entry}, socket) do
+    IO.puts(entry |> Jason.encode!())
+
+    {:ok, _result} =
       socket
       |> push!("logs", "entry", entry)
       |> await_reply!()
 
-    {:reply, result, socket}
+    {:noreply, socket}
   end
 
   @doc false

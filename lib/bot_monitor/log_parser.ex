@@ -1,4 +1,5 @@
 defmodule BotMonitor.LogParser do
+  alias BotMonitor.SocketClient
   use GenServer
 
   @welcome_entry_pattern ~r/Welcome to EverQuest\!$/
@@ -20,26 +21,46 @@ defmodule BotMonitor.LogParser do
 
   # Callbacks
 
-  def init([_character, file_path, _patterns]) do
+  def init([character, file_path, patterns]) do
     file = File.open!(file_path, [:read])
     set_initial_position(file)
-
-    lines_stream(file)
-    |> Enum.each(&IO.inspect/1)
+    lines_stream(file) |> Stream.run()
 
     :timer.send_interval(@poll_interval, :poll)
-    {:ok, file}
+    {:ok, %{character: character, file: file, patterns: patterns}}
   end
 
-  def handle_info(:poll, file) do
-    lines_stream(file)
-    |> Enum.each(&IO.inspect/1)
+  def handle_info(:poll, state) do
+    lines_stream(state.file)
+    |> Stream.flat_map(fn {timestamp, entry} ->
+      Stream.flat_map(state.patterns, fn pattern ->
+        case Regex.named_captures(pattern["regex"], entry) do
+          nil ->
+            []
 
-    {:noreply, file}
+          captures ->
+            [
+              %{
+                event: pattern["event"],
+                character: state.character,
+                timestamp:
+                  timestamp
+                  |> Timex.parse!(@log_timestamp_format)
+                  |> Timex.to_datetime(Timex.Timezone.local()),
+                captures: captures
+              }
+            ]
+        end
+      end)
+    end)
+    |> Stream.each(&SocketClient.send_entry/1)
+    |> Stream.run()
+
+    {:noreply, state}
   end
 
-  def terminate(_reason, file) do
-    :file.close(file)
+  def terminate(_reason, state) do
+    :file.close(state.file)
     :ok
   end
 
@@ -51,8 +72,7 @@ defmodule BotMonitor.LogParser do
       fn file ->
         with line when is_binary(line) <- IO.read(file, :line),
              [_line, timestamp, message] <- Regex.run(@log_entry_pattern, line) do
-          {:ok, datetime} = Timex.parse(timestamp, @log_timestamp_format)
-          {[{datetime, message}], file}
+          {[{timestamp, message}], file}
         else
           :eof -> {:halt, file}
           nil -> {[], file}
