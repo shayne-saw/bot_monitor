@@ -1,6 +1,6 @@
 # BotMonitor
 
-**TODO: Add description**
+**BotMonitor** is an Elixir-based application designed to monitor and process logs in real-time. It leverages WebSocket communication to interact with a remote server, providing seamless integration for log parsing and analysis.
 
 ## Disclaimer
 The binary executable provided for BotMonitor is distributed "as is" without any warranties or guarantees of any kind, either express or implied. By downloading and using this executable, you agree to the following:
