@@ -6,8 +6,28 @@ defmodule BotMonitor.Application do
 
   use Application
 
+  @built_at DateTime.utc_now() |> DateTime.to_string()
+
+  @git_hash (case(System.cmd("git", ["rev-parse", "--short", "HEAD"])) do
+               {hash, 0} ->
+                 dirty_suffix =
+                   case System.cmd("git", ["status", "--porcelain"]) do
+                     # No changes
+                     {"", 0} -> ""
+                     _ -> " (dirty)"
+                   end
+
+                 String.trim(hash) <> dirty_suffix
+
+               _ ->
+                 "unknown"
+             end)
+
   @impl true
   def start(_type, _args) do
+    # Print version and Git hash
+    print_version_and_git_hash()
+
     {config, cookie, patterns} =
       Storage.open(fn ->
         {get_config(), Storage.get_cookie(), Storage.get_patterns()}
@@ -65,5 +85,13 @@ defmodule BotMonitor.Application do
       value ->
         value
     end
+  end
+
+  defp print_version_and_git_hash do
+    version = Application.spec(:bot_monitor, :vsn) |> to_string()
+
+    IO.puts("BotMonitor Version: #{version}")
+    IO.puts("Built At: #{@built_at}")
+    IO.puts("Git Hash: #{@git_hash}")
   end
 end

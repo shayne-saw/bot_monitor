@@ -19,7 +19,8 @@ RUN apt-get update && apt-get install -y \
     xsltproc \
     wget \
     inotify-tools \
-    tzdata
+    tzdata \
+    7zip
 
 USER vscode
 
@@ -36,3 +37,10 @@ RUN asdf plugin-add erlang && \
 RUN asdf plugin-add elixir && \
     asdf install elixir 1.18.1 && \
     asdf global elixir 1.18.1
+
+RUN asdf plugin-add zig
+
+# TODO: Should be able to run these as well but fails due to permission issues
+# when curl tries to download the file
+# asdf install zig 0.14.0 && \
+# asdf global zig 0.14.0  
