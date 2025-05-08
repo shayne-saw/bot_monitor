@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  client:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ../..:/workspaces:cached
+    command: sleep infinity
+    environment:
+      BOT_MONITOR_USERNAME: ""
+      LOG_DIRECTORY: "/home/vscode/eq_logs"
+      LOG_ENDPOINT: "ws://app:4000/logs/websocket"
+      TZ: America/Chicago
+
+networks:
+  default:
+    name: devcontainer_default
+    driver: bridge

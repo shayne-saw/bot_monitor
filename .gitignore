@@ -22,5 +22,5 @@ bot_monitor-*.tar
 # Temporary files, for example, from tests.
 /tmp/
 
-.local.env
 burrito_out/
+.devcontainer/docker-compose.local.yml
