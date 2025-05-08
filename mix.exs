@@ -4,7 +4,7 @@ defmodule BotMonitor.MixProject do
   def project do
     [
       app: :bot_monitor,
-      version: "0.1.0",
+      version: "0.2.0",
       elixir: "~> 1.17",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -36,7 +36,7 @@ defmodule BotMonitor.MixProject do
       # Include current timestamp in the release name to avoid
       # caching issues. I think there is a way to do this without
       # the timestamp, but I haven't figured it out yet.
-      "bot_monitor_#{build_timestamp()}": [
+      bot_monitor: [
         steps: [:assemble, &Burrito.wrap/1],
         burrito: [
           targets: [
@@ -45,12 +45,5 @@ defmodule BotMonitor.MixProject do
         ]
       ]
     ]
-  end
-
-  defp build_timestamp() do
-    DateTime.utc_now()
-    |> DateTime.to_string()
-    |> String.replace(~r"\.\d+Z$", "")
-    |> String.replace(~r"[\-\:\s]", "_")
   end
 end

@@ -61,14 +61,47 @@ We appreciate your contributions and look forward to collaborating with you!
 
 ## Building
 
-```
-asdf install zig latest
-asdf global zig latest
+### Build Dependencies
+To build the project, ensure the following dependencies are installed and configured:
+
+1. **Zig Compiler**: Required for Burrito builds.
+   ```bash
+   asdf install zig latest
+   asdf global zig latest
+   ```
+
+2. **Git**: The Dev Container includes an up-to-date version of Git, built from source as needed, and pre-installed on the `PATH`. Ensure Git is available for versioning and release tasks.
+
+### Cleaning Build Artifacts
+When developing or preparing a release, it is important to clean up cached build data to ensure predictable results:
+
+1. **Windows Build Cache**:
+   If developing on Windows, Burrito caches build data in the following directory:
+   ```
+   C:\Users\Yourself\AppData\Local\.burrito
+   ```
+   Delete this directory between builds to avoid issues with stale artifacts.
+
+2. **Elixir Build Artifacts**:
+   Remove the `_build` directory before creating a release to ensure the Git hash is correctly embedded in the `Application` module:
+   ```bash
+   rm -rf _build
+   ```
+
+### Building the Release
+To build a production release, use the following command:
+```bash
 MIX_ENV=prod mix release
-
 ```
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at <https://hexdocs.pm/bot_monitor>.
+This will:
+- Compile the project in production mode.
+- Generate a release executable with Burrito, embedding the current Git hash (and marking it as `(dirty)` if there are uncommitted changes).
+
+### Notes
+- Ensure the working directory is clean (no uncommitted changes) before running `mix release`. This ensures the Git hash embedded in the release is accurate.
+- If you encounter issues with the release process, verify that all dependencies are installed and that the `_build` directory has been cleaned.
+
+We recommend testing the release executable in a clean environment to ensure it behaves as expected.
+
 
