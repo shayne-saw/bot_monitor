@@ -33,7 +33,10 @@ defmodule BotMonitor.MixProject do
 
   defp releases do
     [
-      bot_monitor: [
+      # Include current timestamp in the release name to avoid
+      # caching issues. I think there is a way to do this without
+      # the timestamp, but I haven't figured it out yet.
+      "bot_monitor_#{build_timestamp()}": [
         steps: [:assemble, &Burrito.wrap/1],
         burrito: [
           targets: [
@@ -42,5 +45,12 @@ defmodule BotMonitor.MixProject do
         ]
       ]
     ]
+  end
+
+  defp build_timestamp() do
+    DateTime.utc_now()
+    |> DateTime.to_string()
+    |> String.replace(~r"\.\d+Z$", "")
+    |> String.replace(~r"[\-\:\s]", "_")
   end
 end
