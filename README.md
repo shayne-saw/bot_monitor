@@ -17,6 +17,12 @@ The binary executable provided for BotMonitor is distributed "as is" without any
 4. **Usage:**
    This software is intended for personal or educational use. Ensure compliance with all applicable laws and regulations when using this software.
 
+## Download
+
+[![Download Latest Release](https://img.shields.io/badge/Download-BotMonitor-blue)](https://github.com/shayne-saw/bot_monitor/releases/download/0.2.0/bot_monitor_windows.exe)
+
+Click the button above to get the most recent version of the application.
+
 ## Contributing
 
 We welcome contributions to the **BotMonitor** project! To ensure a smooth development experience, we use **Dev Containers**, **Visual Studio Code**, and **Docker Desktop** as our primary development tools. Below are the details and steps to get started:
